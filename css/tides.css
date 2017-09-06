@@ -1,0 +1,10 @@
+.uri-tides-widget {
+    margin: 1rem 0;
+    font-size: 1rem;
+}
+
+.tidechart {
+    display: block;
+    margin: 1rem 0;
+    background: #eee;
+}
