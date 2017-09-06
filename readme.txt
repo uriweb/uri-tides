@@ -1,4 +1,4 @@
-=== URI Project Finder Tools ===
+=== URI Tides Widget ===
 
 Contributors: Brandon Fuller
 Tags: widgets
@@ -10,6 +10,6 @@ Tides widget and shortcode
 
 == Description ==
 
-Add [uri-tides] to a page and a tides widget appears.  Pulls live data from NOAAâ€™s Quonset Point station.
+Add [uri-tides] to a page and a tides widget appears.  Pulls live data from NOAA’s Quonset Point station.
 
 TBD
