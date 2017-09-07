@@ -2,9 +2,12 @@
     
     'use strict';
     
+    /* Set parameters for data retrieval 
+     * See API documentation at https://tidesandcurrents.noaa.gov/api/
+     */
     var parameters = {
         product: 'water_level',
-        date: 'today',
+        date: 'recent',
         datum: 'MLLW',
         station: '8454049',
         time_zone: 'LST',
@@ -14,7 +17,11 @@
     window.addEventListener('load', function(){
         uriTidesInit();
     });
-                            
+             
+    
+    /*
+     * Initiate tides widget
+     */
     function uriTidesInit() {
         var els;
         
@@ -22,27 +29,44 @@
         
         els.forEach(function(el){
             el.innerHTML = 'JS is working...';
-            fetch(el, handleResponse);
+            getTides(el, getWaterLevels);
         });
     }
     
     
-    function fetch(el, success) {
+    /*
+     * Get tide data from https://tidesandcurrents.noaa.gov/
+     * @param el obj the tide widget element
+     * @param success func the function to handle the response
+     */
+    function getTides(el, success) {
         var url, x, p = '', xmlhttp = new XMLHttpRequest();
         
 		xmlhttp.onreadystatechange = function() {
-			if (xmlhttp.readyState == XMLHttpRequest.DONE ) {
-				if (xmlhttp.status == 200) {
-					success(el, xmlhttp.responseText);
-				}
-	 			else if (xmlhttp.status == 404) {
-					console.log('error 404 was returned');
-					setStatus('error', 'There was an error retrieving results.');
-					clearResults();
-	 			}
-				else {
-					console.log('something else other than 200 or 404 was returned');
-				}
+			if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
+				success(el, JSON.parse(xmlhttp.responseText), buildChart);
+			}
+		};
+        
+        url = 'https://tidesandcurrents.noaa.gov/api/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&date=today&datum=MLLW&station=8454049&time_zone=lst_ldt&units=english&interval=hilo&format=json';
+		xmlhttp.open('GET', url, true);
+		xmlhttp.send();
+    
+	}
+    
+    
+    /*
+     * Get water level data from https://tidesandcurrents.noaa.gov/
+     * @param el obj the tide widget element
+     * @param tides obj the tides data
+     * @param success func the function to handle the response
+     */
+    function getWaterLevels(el, tides, success) {
+        var url, x, p = '', xmlhttp = new XMLHttpRequest();
+        
+		xmlhttp.onreadystatechange = function() {
+			if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
+				success(el, tides, JSON.parse(xmlhttp.responseText));
 			}
 		};
         
@@ -53,17 +77,20 @@
         url = "https://tidesandcurrents.noaa.gov/api/datagetter?application=NOS.COOPS.TAC.WL&format=json" + p;
 		xmlhttp.open('GET', url, true);
 		xmlhttp.send();
+    
 	}
     
     
-    function handleResponse(el, raw) {
-		var parsed = JSON.parse(raw),
-            data = parsed.data,
-            n = data.length;
-        
+    /*
+     * Build chart and display
+     * @param el obj the tide widget element
+     * @param raw json the returned data
+     */
+    function buildChart(el, tides, data) {
+		data = data.data,        
         console.log(data);
         
-        var current, previous, tide, output, i;
+        var current, previous, tide, output, n = data.length;
                 
         current = data[n - 1].v;
         previous = data[n - 2].v;
@@ -73,14 +100,38 @@
         output = 'height: ' + current;
         output += '<br />tide: ' + tide;
         
-        output += '<svg height="100px" width="300px" class="tidechart">';
         
-        for (i=0; i<n; i=i+5) {
-            output += '<circle cx="' + i + '" cy="' + (100 - data[i].v * 10) + '" r="2" stroke="black" stroke-width="0" fill="#267ce0"" />'
+        // Build the Plot SVG
+        output += '<svg height="100px" width="240px" class="tidechart">';
+        
+        for (var i=n-240; i<n; i=i+2) {
+            if (data[i].v) {
+                output += '<circle cx="' + (i - (n - 240)) + '" cy="' + (80 - data[i].v * 10) + '" r="1" stroke="black" stroke-width="0" fill="#267ce0"" />';
+            }
         }
+            
+        output += '</svg>';
+        
+        
+        
+        // Build the Graphic SVG
+        console.log(tides.predictions[0]);
+        
+        var predictions = tides.predictions;
+        for (var x in predictions) {
+            console.log(predictions[x]);
+        }
+        
+        output += '<svg height="30px" width="100px" class="tidechart">';
+        output += '<g transform="matrix(0.830841,0,0,0.872634,-11809.4,-4442.24)">';
+        output += '<path d="M14215,5107.81C14215,5107.81 14226.3,5091.67 14245,5091.8C14263.7,5091.94 14284.2,5123.99 14305,5123.81C14325.7,5123.62 14333,5107.81 14333,5107.81" style="fill:none;stroke:black;stroke-width:2.36px;"/>';
+        output += '</g>'
+        
+        
         
         output += '</svg>';
         
+        // Display
         el.innerHTML = output;
         
     }
