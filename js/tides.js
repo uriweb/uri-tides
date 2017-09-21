@@ -28,7 +28,7 @@
         els = document.querySelectorAll('.uri-tides-widget');
         
         els.forEach(function(el){
-            el.innerHTML = 'JS is working...';
+            el.innerHTML = 'Initiating tides...';
             getTides(el, getWaterLevels);
         });
     }
@@ -89,18 +89,22 @@
     function buildChart(el, tides, data) {
 		data = data.data; // Use data.predictions when fetching prediction data
         
-        //console.log(data);
+        console.log(tides);
         
         var current, previous, tide, output, n = data.length;
                 
-        current = data[n - 1].v;
+        current = Math.round(data[n - 1].v * 10) / 10;
         previous = data[n - 2].v;
         
         tide = (current - previous > 0) ?  'rising' : 'falling';
         
-        output = 'height: ' + current;
-        output += '<br />tide: ' + tide;
-        
+        output = '<div class="uri-tides">'
+        output += '<span class="height">' + current + '</span>';
+        output += '<div class="specs">';
+        output += '<span class="units">ft</span>';
+        output += '<span class="tide ' + tide + '"></span>';
+        output += '</div>';   
+        output += '</div>';
         
         // Build the Plot SVG
         output += '<svg height="100px" width="240px" class="tidechart">';
@@ -116,7 +120,6 @@
         
         
         // Build the Graphic SVG
-        
         var predictions = tides.predictions,
             diff = Math.abs(predictions[0].v - predictions[1].v),
             h = 30; // the SVG height
@@ -129,6 +132,7 @@
         output += '<circle cx="50" cy="' + (h - h / diff * current) + '" r="5" stroke="black" stroke-width="0" fill="#000"" />';
         
         output += '</svg>';
+        
         
         // Display
         el.innerHTML = output;

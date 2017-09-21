@@ -8,3 +8,52 @@
     margin: 1rem 0;
     background: #eee;
 }
+
+.uri-tides {
+    font-size: 3rem;
+    font-weight: 600;
+}
+
+.uri-tides:after {
+    display: block;
+    content: '';
+    clear: both;
+}
+
+.uri-tides .height {
+    float: left;
+}
+
+.uri-tides .specs {
+    float: left;
+    display: inline-block;
+    margin-left: .5rem;
+    margin-top: 5px;
+}
+
+.uri-tides .specs span {
+    display: block;
+}
+
+.uri-tides .units {
+    font-size: 1.5rem;
+    color: #000;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.uri-tides .tide {
+    width: 0;
+    height: 0;
+    margin-left: 2px;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+}
+
+.uri-tides .tide.falling {
+    border-top: 10px solid #0080ff;
+}
+
+.uri-tides .tide.rising {
+    border-bottom: 10px solid #0080ff;
+}
