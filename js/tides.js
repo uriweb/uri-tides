@@ -14,6 +14,13 @@
         units: 'english'
     };  
     
+    /* Set the height of the graphic in pixels.
+     * The graphic will scale proportionally.
+     */
+    var height = 20;
+    
+    
+    // Wait for the window to load...
     window.addEventListener('load', function(){
         uriTidesInit();
     });
@@ -48,7 +55,7 @@
 			}
 		};
         
-        url = 'https://tidesandcurrents.noaa.gov/api/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&date=today&datum=MLLW&station=8454049&time_zone=gmt&units=english&interval=hilo&format=json';
+        url = 'https://tidesandcurrents.noaa.gov/api/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&begin_date=20170921&end_date=20170922&datum=MLLW&station=8454049&time_zone=GMT&units=english&interval=hilo&format=json';
 		xmlhttp.open('GET', url, true);
 		xmlhttp.send();
     
@@ -120,17 +127,44 @@
         
         
         // Build the Graphic SVG
+            
         var predictions = tides.predictions,
-            diff = Math.abs(predictions[0].v - predictions[1].v),
-            h = 30; // the SVG height
-                
-        output += '<svg height="' + h + 'px" width="100px" class="tidechart">';
-        output += '<g transform="matrix(0.830841,0,0,0.872634,-11809.4,-4442.24)">';
-        output += '<path d="M14215,5107.81C14215,5107.81 14226.3,5091.67 14245,5091.8C14263.7,5091.94 14284.2,5123.99 14305,5123.81C14325.7,5123.62 14333,5107.81 14333,5107.81" style="fill:none;stroke:black;stroke-width:2.36px;"/>';
-        output += '</g>'
+            now = new Date(),
+            times = [];
         
-        output += '<circle cx="50" cy="' + (h - h / diff * current) + '" r="5" stroke="black" stroke-width="0" fill="#000"" />';
+        for (var i=0; i<predictions.length; i++) {
+            var t = predictions[i].t.replace(' ', 'T') + 'Z';
+            times.push(new Date(t));
+            
+            var delta = now.getTime() - times[i].getTime();
+            if(delta >= 0) {
+                var deltaX = delta;
+                var cycles = i;
+                var previous = predictions[i].type;
+            }
+        }
         
+        var SVGw = times[2] - times[0];
+                        
+        var cycle = SVGw / 2;
+        
+        if (previous == 'L' && deltaX >= cycle / 2) {
+            deltaX = deltaX;
+        } else if (previous == 'L' && deltaX < cycle / 2) {
+            deltaX = deltaX + cycle;
+        } else {
+            deltaX = deltaX + cycle / 2;
+        }
+        
+        var h = height, // the SVG height
+            w = h*3.5, // the SVG width
+            p = h/4; // padding
+            
+        var x = (2 * Math.PI) / SVGw * deltaX;
+        var deltaY = Math.sin(x) + 1;
+                        
+        output += '<svg height="' + (h + p * 2) + 'px" width="' + (w + p * 2) + 'px" class="tidegraphic">';
+        output += '<circle cx="' + (w / SVGw * deltaX + p) + '" cy="' + (h - h / 2 * deltaY + p) + '" r="' + p + '" stroke="black" stroke-width="0" fill="#000"" />';
         output += '</svg>';
         
         
