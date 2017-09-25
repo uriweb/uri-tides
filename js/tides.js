@@ -2,22 +2,27 @@
     
     'use strict';
     
-    /* Set parameters for data retrieval 
-     * See API documentation at https://tidesandcurrents.noaa.gov/api/
-     */
-    var parameters = {
-        product: 'water_level', // use 'predictions' for predicted data
-        date: 'recent',
-        datum: 'MLLW',
-        station: '8454049',
-        time_zone: 'GMT',
-        units: 'english'
-    };  
+    /*
+     * See CO-OPS JSON API documentation at https://tidesandcurrents.noaa.gov/api/
+     */ 
     
-    /* Set the height of the graphic in pixels.
-     * The graphic will scale proportionally.
+    var parameters = {
+        'station' : '8454049',
+        'timezone' : 'GMT',
+        'baseURL' : 'https://tidesandcurrents.noaa.gov/api/datagetter?'
+    }
+        
+    
+    /* 
+     * Set the dimensions of the sine curve
+     * This is the dimension of the curve itself, not necessarily
+     * the size of the image (unless the padding is 0).
      */
-    var height = 20;
+    var curve = {
+            'height' : 20,
+            'width' : 70,
+            'padding' : 5
+        };
     
     
     // Wait for the window to load...
@@ -30,16 +35,45 @@
      * Initiate tides widget
      */
     function uriTidesInit() {
-        var els;
+        var els, i;
         
         els = document.querySelectorAll('.uri-tides-widget');
         
-        els.forEach(function(el){
-            el.innerHTML = 'Initiating tides...';
-            getTides(el, getWaterLevels);
-        });
+        for(i=0; i<els.length; i++) {
+            els[i].innerHTML = '<div class="status">Initiating tides...</div>';
+            getTides(els[i], getWaterLevels);
+        };
+            
     }
     
+    
+    /*
+     * Set, get, and check cookie for metric/imperial display
+     */
+    class cookie {
+        static set(cname, cvalue, exdays) {
+            var d = new Date();
+            d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+            var expires = 'expires='+d.toUTCString();
+            document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
+        }
+
+        static get(cname) {
+            var name = cname + '=';
+            var ca = document.cookie.split(';');
+            for(var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return '';
+        }
+    }
+
     
     /*
      * Get tide data from https://tidesandcurrents.noaa.gov/
@@ -47,15 +81,15 @@
      * @param success func the function to handle the response
      */
     function getTides(el, success) {
-        var url, x, p = '', xmlhttp = new XMLHttpRequest();
+        var url, xmlhttp = new XMLHttpRequest();
         
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
-				success(el, JSON.parse(xmlhttp.responseText), buildChart);
+				success(el, JSON.parse(xmlhttp.responseText), getWaterTemp);
 			}
 		};
         
-        url = 'https://tidesandcurrents.noaa.gov/api/datagetter?product=predictions&application=NOS.COOPS.TAC.WL&begin_date=20170921&end_date=20170922&datum=MLLW&station=8454049&time_zone=GMT&units=english&interval=hilo&format=json';
+        url = parameters.baseURL + 'product=predictions&application=NOS.COOPS.TAC.WL&date=recent&datum=MLLW&station=' + parameters.station + '&time_zone=' + parameters.timezone + '&units=english&interval=hilo&format=json';
 		xmlhttp.open('GET', url, true);
 		xmlhttp.send();
     
@@ -69,19 +103,36 @@
      * @param success func the function to handle the response
      */
     function getWaterLevels(el, tides, success) {
-        var url, x, p = '', xmlhttp = new XMLHttpRequest();
+        var url, xmlhttp = new XMLHttpRequest();
         
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
-				success(el, tides, JSON.parse(xmlhttp.responseText));
+				success(el, tides, JSON.parse(xmlhttp.responseText), buildChart);
 			}
 		};
-        
-        for (x in parameters) {
-            p += '&' + x + '=' + parameters[x];
-        }
 		
-        url = "https://tidesandcurrents.noaa.gov/api/datagetter?application=NOS.COOPS.TAC.WL&format=json" + p;
+        url = parameters.baseURL + 'product=water_level&application=NOS.COOPS.TAC.WL&date=latest&datum=MLLW&station=' + parameters.station + '&time_zone=' + parameters.timezone + '&units=english&format=json';
+		xmlhttp.open('GET', url, true);
+		xmlhttp.send();
+    
+	}
+    
+    /*
+     * Get water level data from https://tidesandcurrents.noaa.gov/
+     * @param el obj the tide widget element
+     * @param tides obj the tides data
+     * @param success func the function to handle the response
+     */
+    function getWaterTemp(el, tides, data, success) {
+        var url, xmlhttp = new XMLHttpRequest();
+        
+		xmlhttp.onreadystatechange = function() {
+			if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
+				success(el, tides, data, JSON.parse(xmlhttp.responseText));
+			}
+		};
+		
+        url = parameters.baseURL + 'product=water_temperature&application=NOS.COOPS.TAC.PHYSOCEAN&date=latest&station=' + parameters.station + '&time_zone=' + parameters.timezone + '&units=english&interval=6&format=json';
 		xmlhttp.open('GET', url, true);
 		xmlhttp.send();
     
@@ -93,83 +144,107 @@
      * @param el obj the tide widget element
      * @param raw json the returned data
      */
-    function buildChart(el, tides, data) {
-		data = data.data; // Use data.predictions when fetching prediction data
-        
-        console.log(tides);
-        
-        var current, previous, tide, output, n = data.length;
+    function buildChart(el, tides, data, temp) {
+		tides = tides.predictions;
+        data = data.data;
+        temp = temp.data;
                 
-        current = Math.round(data[n - 1].v * 10) / 10;
-        previous = data[n - 2].v;
+        var tideHeight,
+            output,
+            display = {
+                'imperial' : 'block',
+                'metric' : 'none'
+            }, 
+            cname = 'uri-tides-water-temp';
         
-        tide = (current - previous > 0) ?  'rising' : 'falling';
+        tideHeight = Math.round(data[data.length - 1].v * 10) / 10;
         
-        output = '<div class="uri-tides">'
-        output += '<span class="height">' + current + '</span>';
-        output += '<div class="specs">';
-        output += '<span class="units">ft</span>';
-        output += '<span class="tide ' + tide + '"></span>';
-        output += '</div>';   
+        if (cookie.get(cname)== 'metric') {
+            display.imperial = 'none';
+            display.metric = 'block';
+        }
+                                
+        output = '<div class="uri-tides-metrics">';
+        output += '<span class="label">WATER TEMP</span>';
+        output += '<div style="display: ' + display.imperial + '" title="Switch to celcius">';
+        output += temp[0].v + '&#176;<em>F</em>';
+        //output += tideHeight + '<em>FT</em>';
+        output += '</div><div style="display: ' + display.metric + '" title="Switch to fahrenheit">';
+        output += Math.round((temp[0].v - 32) * 5 / 9 * 10) / 10 + '&#176;<em>C</em>';
+        //output += Math.round(tideHeight * 3.048) / 10 + '<em>M</em>';
+        output += '</div>';
         output += '</div>';
         
-        // Build the Plot SVG
-        output += '<svg height="100px" width="240px" class="tidechart">';
+        /*
+         * Build the SVG
+         */
         
-        for (var i=n-240; i<n; i=i+2) {
-            if (data[i].v) {
-                output += '<circle cx="' + (i - (n - 240)) + '" cy="' + (80 - data[i].v * 10) + '" r="1" stroke="black" stroke-width="0" fill="#267ce0"" />';
-            }
-        }
-            
-        output += '</svg>';
+        // Initialize
+        var now = new Date(),
+            times = [],
+            m = {};
+               
         
-        
-        
-        // Build the Graphic SVG
-            
-        var predictions = tides.predictions,
-            now = new Date(),
-            times = [];
-        
-        for (var i=0; i<predictions.length; i++) {
-            var t = predictions[i].t.replace(' ', 'T') + 'Z';
+        // Convert and push tide times to new array for use in next step
+        for (var i=0; i<tides.length; i++) {
+            var t = tides[i].t.replace(' ', 'T') + 'Z';
             times.push(new Date(t));
-            
-            var delta = now.getTime() - times[i].getTime();
-            if(delta >= 0) {
-                var deltaX = delta;
-                var cycles = i;
-                var previous = predictions[i].type;
-            }
         }
         
-        var SVGw = times[2] - times[0];
-                        
-        var cycle = SVGw / 2;
         
-        if (previous == 'L' && deltaX >= cycle / 2) {
-            deltaX = deltaX;
-        } else if (previous == 'L' && deltaX < cycle / 2) {
-            deltaX = deltaX + cycle;
+        // Calculate the length of one tidal cycle based on the average of the last several cycles
+        m.cycle = 0;
+        for (var i=0; i<times.length - 2; i++) {
+            m.cycle += times[i+2] - times[i];
+        }
+        m.cycle = m.cycle / (times.length - 2);
+                   
+        // Determine the amount of time that has elapsed since the last tide
+        m.x = now - times[times.length-1];
+        m.last = tides[tides.length-1].type;
+              
+        
+        // Determine the position of the current tide in time along the displayed cycle
+        m.quarter = m.cycle / 4;             
+        if (m.last == 'L') {
+            m.x = (m.x >= m.quarter) ? m.x - m.quarter : m.x + m.quarter * 3;
         } else {
-            deltaX = deltaX + cycle / 2;
+            m.x = m.x + m.quarter;
         }
         
-        var h = height, // the SVG height
-            w = h*3.5, // the SVG width
-            p = h/4; // padding
-            
-        var x = (2 * Math.PI) / SVGw * deltaX;
-        var deltaY = Math.sin(x) + 1;
+        
+        // Use the x position to calculate the y position on a sine curve
+        var x = (2 * Math.PI) / m.cycle * m.x;
+        m.y = Math.sin(x) + 1;
+        
+        console.log(m);
                         
-        output += '<svg height="' + (h + p * 2) + 'px" width="' + (w + p * 2) + 'px" class="tidegraphic">';
-        output += '<circle cx="' + (w / SVGw * deltaX + p) + '" cy="' + (h - h / 2 * deltaY + p) + '" r="' + p + '" stroke="black" stroke-width="0" fill="#000"" />';
+        // Put it all together, converting the x and y positions to proportions of the SVG dimensions
+        output += '<div class="uri-tides-tide">';
+        output += '<span class="label">TIDE</span>';
+        output += '<svg height="' + (curve.height + curve.padding * 2) + 'px" width="' + (curve.width + curve.padding * 2) + 'px" class="uri-tides-graphic">';
+        output += '<circle cx="' + (curve.width / m.cycle * m.x + curve.padding) + '" cy="' + (curve.height - curve.height / 2 * m.y + curve.padding) + '" r="' + curve.padding + '" stroke="black" stroke-width="0" fill="#555"" />';
         output += '</svg>';
+        output += '</div>';
+        
+        output += '<div class="uri-tides-source">Source: <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=' + parameters.station + '" title="NOAA Center for Operational Oceanographic Producs and Services">NOAA/NOS/CO-OPS</a></div>';
         
         
         // Display
         el.innerHTML = output;
+        
+        el.querySelector('.uri-tides-metrics').addEventListener('click', function() {
+            var divs = this.getElementsByTagName('div');
+            if (divs[0].style.display == 'block' ) {
+                divs[0].style.display = 'none';
+                divs[1].style.display = 'block';
+                cookie.set(cname, 'metric', 365);
+            } else {
+                divs[0].style.display = 'block';
+                divs[1].style.display = 'none';
+                cookie.set(cname, 'imperial', 365);
+            }
+        });
         
     }
     

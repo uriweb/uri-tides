@@ -1,66 +1,72 @@
 .uri-tides-widget {
     margin: 1rem 0;
     font-size: 1rem;
+    padding: .5rem;
+    border-radius: 5px;
+    background: #fff;
+    display: inline-block;
+    clear: both;
+    color: #555;
+    border: 1px solid #eee;
 }
 
-.tidechart {
-    display: block;
-    margin: 1rem 0;
-    background: #eee;
-}
-
-.tidegraphic {
-    background-image: url(../i/sine.svg);
-    background-size: 100% auto;
-    background-position: 0 0;
-    background-repeat: no-repeat;
-}
-
-.uri-tides {
-    font-size: 3rem;
-    font-weight: 600;
-}
-
-.uri-tides:after {
-    display: block;
+.uri-tides-widget:after {
     content: '';
+    display: block;
     clear: both;
 }
 
-.uri-tides .height {
+.uri-tides-widget .status {
+    font-size: 10px;
+    color: #ccc;
+}
+
+.uri-tides-graphic {
+    background-image: url(../i/sine.png);
+    background-size: 100% 100%;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.uri-tides-metrics,
+.uri-tides-tide {
     float: left;
 }
 
-.uri-tides .specs {
-    float: left;
-    display: inline-block;
-    margin-left: .5rem;
-    margin-top: 5px;
-}
-
-.uri-tides .specs span {
+.uri-tides-widget .label {
     display: block;
+    font-size: 10px;
+    margin-bottom: 3px;
 }
 
-.uri-tides .units {
-    font-size: 1.5rem;
-    color: #000;
-    text-transform: uppercase;
+.uri-tides-metrics>div {
+    font-size: 30px;
     font-weight: 600;
+    float: left;
 }
 
-.uri-tides .tide {
-    width: 0;
-    height: 0;
-    margin-left: 2px;
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
+.uri-tides-metrics>div:hover {
+    cursor: pointer;
 }
 
-.uri-tides .tide.falling {
-    border-top: 10px solid #0080ff;
+.uri-tides-metrics em {
+    margin-right: 1rem;
+    font-size: 20px;
+    font-weight: 700;
 }
 
-.uri-tides .tide.rising {
-    border-bottom: 10px solid #0080ff;
+.uri-tides-source {
+    margin-top: 5px;
+    font-size: 10px;
+    color: #ccc;
+    float: left;
+    clear: both;
+}
+
+.uri-tides-source a {
+    color: inherit !important;
+}
+
+.uri-tides-source a:hover {
+    text-decoration: underline;
 }

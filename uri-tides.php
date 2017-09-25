@@ -40,7 +40,7 @@ function uri_tides_shortcode($attributes, $content, $shortcode) {
     uri_tides_scripts();
     uri_tides_styles();
     
-    return '<div class="uri-tides-widget">Tides Widget</div>';
+    return '<div class="uri-tides-widget"><span class="status">Water data is unavailable</span></div>';
     
 }
 add_shortcode( 'uri-tides', 'uri_tides_shortcode' );

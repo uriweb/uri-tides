@@ -10,6 +10,6 @@ Tides widget and shortcode
 
 == Description ==
 
-Add [uri-tides] to a page and a tides widget appears.  Pulls live data from NOAA’s Quonset Point station.
+Add [uri-tides] to a page and a tides widget appears.  Pulls live water temp data from NOAA Quonset Point station and display position of tide.
 
 TBD
