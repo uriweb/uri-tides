@@ -98,7 +98,7 @@
      * @param success func the function to handle the response
      */
     function getTides(el, success) {
-        var url, xmlhttp = new XMLHttpRequest();
+        var d, date, url, xmlhttp = new XMLHttpRequest();
         
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
@@ -106,8 +106,11 @@
 			}
 		};
         
-        url = parameters.baseURL + 'product=predictions&application=NOS.COOPS.TAC.WL&date=recent&datum=MLLW&station=' + parameters.station + '&time_zone=' + parameters.timezone + '&units=english&interval=hilo&format=json';
-		xmlhttp.open('GET', url, true);
+        d = new Date();
+        date = d.getFullYear() + ("0" + (d.getMonth() + 1)).slice(-2) + ("0" + d.getDate()).slice(-2);
+        
+        url = parameters.baseURL + 'product=predictions&application=NOS.COOPS.TAC.WL&begin_date=' + (parseInt(date) - 1) + '&end_date=' + (parseInt(date) + 1) + '&datum=MLLW&station=' + parameters.station + '&time_zone=' + parameters.timezone + '&units=english&interval=hilo&format=json';
+        xmlhttp.open('GET', url, true);
 		xmlhttp.send();
     
 	}
@@ -175,30 +178,28 @@
         // Initialize
         var now = new Date(),
             times = [],
-            m = {};
-               
-        
+            m = {},
+            i;
+                             
         // Convert and push tide times to new array for use in next step
-        for (var i=0; i<tides.length; i++) {
+        for (i=0; i<tides.length; i++) {
             var t = tides[i].t.replace(' ', 'T') + 'Z';
             times.push(new Date(t));
+                        
+            if (now < times[i]) {
+                m.x = now - times[i-1];
+                m.last = tides[i-1].type;
+                break;
+            }
         }
+         
         
-        
-        // Calculate the length of one tidal cycle based on the average of the last several cycles
-        m.cycle = 0;
-        for (var i=0; i<times.length - 2; i++) {
-            m.cycle += times[i+2] - times[i];
-        }
-        m.cycle = m.cycle / (times.length - 2);
-                   
-        // Determine the amount of time that has elapsed since the last tide
-        m.x = now - times[times.length-1];
-        m.last = tides[tides.length-1].type;
-              
+        // Calculate the length of one quarter and one whole tidal cycle, based on time between last and next slack
+        m.quarter = (times[i] - times[i-1]) / 2;
+        m.cycle = m.quarter * 4;
+       
         
         // Determine the position of the current tide in time along the displayed cycle
-        m.quarter = m.cycle / 4;             
         if (m.last == 'L') {
             m.x = (m.x >= m.quarter) ? m.x - m.quarter : m.x + m.quarter * 3;
         } else {
