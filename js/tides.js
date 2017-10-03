@@ -4,8 +4,7 @@
     
     /*
      * See CO-OPS JSON API documentation at https://tidesandcurrents.noaa.gov/api/
-     */ 
-    
+     */
     var parameters = {
         'station' : '8454049',
         'timezone' : 'GMT',
@@ -106,6 +105,7 @@
 			}
 		};
         
+        // Get 3 days of predictions, centered on the current date
         d = new Date();
         date = d.getFullYear() + ("0" + (d.getMonth() + 1)).slice(-2) + ("0" + d.getDate()).slice(-2);
         
@@ -194,7 +194,7 @@
         }
          
         
-        // Calculate the length of one quarter and one whole tidal cycle, based on time between last and next slack
+        // Calculate the duration of one quarter and one whole tidal cycle, based on time between last and next slack
         m.quarter = (times[i] - times[i-1]) / 2;
         m.cycle = m.quarter * 4;
        
