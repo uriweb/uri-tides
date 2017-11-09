@@ -167,7 +167,7 @@
         }
                                 
         output = '<div class="uri-tides-metrics">';
-        output += '<span class="label">WATER TEMP</span>';
+        output += '<span class="label">WATER</span>';
         output += '<div style="display: ' + display.imperial + '; font-size: ' + curve.bound + 'px" title="Switch to celcius">';
         output += parseFloat(temp[0].v).toFixed(1) + '&#176;<em>F</em>';
         output += '</div><div style="display: ' + display.metric + '; font-size: ' + curve.bound + 'px" title="Switch to fahrenheit">';
