@@ -211,12 +211,13 @@
         var x = (2 * Math.PI) / m.cycle * m.x;
         m.y = Math.sin(x) + 1;
         
+        var fillcolor = el.classList.contains('darkmode') ? '#fff' : '#555';
         
         // Put it all together, converting the x and y positions to proportions of the SVG dimensions
         output += '<div class="uri-tides-tide">';
         output += '<span class="label">TIDE</span>';
         output += '<svg height="' + (curve.height + curve.padding * 2) + 'px" width="' + (curve.width + curve.padding * 2) + 'px" class="uri-tides-graphic">';
-        output += '<circle cx="' + (curve.width / m.cycle * m.x + curve.padding) + '" cy="' + (curve.height - curve.height / 2 * m.y + curve.padding) + '" r="' + curve.padding + '" stroke="black" stroke-width="0" fill="#555"" />';
+        output += '<circle cx="' + (curve.width / m.cycle * m.x + curve.padding) + '" cy="' + (curve.height - curve.height / 2 * m.y + curve.padding) + '" r="' + curve.padding + '" stroke="black" stroke-width="0" fill="' + fillcolor + '" />';
         output += '</svg>';
         output += '</div>';
         

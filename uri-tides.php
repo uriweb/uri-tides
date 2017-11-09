@@ -43,11 +43,16 @@ function uri_tides_shortcode($attributes, $content, $shortcode) {
     // Attributes
 	extract( shortcode_atts(
 		array(
+            'darkmode' => false,
             'class' => ''
 		), $attributes )
 	);
     
     $output = '<div class="uri-tides-widget';
+    
+    if ($darkmode) {
+        $output .= ' darkmode';
+    }
     
     if (!empty($class)) {
         $output .= ' ' . $class;

@@ -10,6 +10,12 @@
     border: 1px solid #eee;
 }
 
+.uri-tides-widget.darkmode {
+    color: #fff;
+    background: #555;
+    border: none;
+}
+
 .uri-tides-widget:after {
     content: '';
     display: block;
@@ -28,6 +34,10 @@
     background-repeat: no-repeat;
 }
 
+.darkmode .uri-tides-graphic {
+    background-image: url(../i/sine-light.png);
+}
+
 .uri-tides-metrics,
 .uri-tides-tide {
     float: left;
@@ -43,6 +53,7 @@
     font-size: 30px;
     font-weight: 600;
     float: left;
+    margin-right: 10px;
 }
 
 .uri-tides-metrics>div:hover {
