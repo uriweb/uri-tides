@@ -10,18 +10,6 @@
         'timezone' : 'GMT',
         'baseURL' : 'https://tidesandcurrents.noaa.gov/api/datagetter?'
     };
-        
-    
-    /* 
-     * Set the dimensions of the sine curve
-     * This is the dimension of the curve itself, not necessarily
-     * the size of the image (unless the padding is 0).
-     */
-    var curve = {
-        'height' : 20,
-        'width' : 70,
-        'padding' : 5
-    };
     
     
     // Wait for the window to load...
@@ -84,8 +72,22 @@
         els = document.querySelectorAll('.uri-tides-widget');
         
         for(i=0; i<els.length; i++) {
+            
+            /* 
+             * Set the dimensions of the sine curve
+             * This is the dimension of the curve itself, not necessarily
+             * the size of the image (unless the padding is 0).
+             */
+            var h = els[i].getAttribute('data-height');
+            var curve = {
+                'bound' : h,
+                'height' : h * (2/3),
+                'width' : h * (7/3),
+                'padding' : h * (1/6)
+            };
+            
             els[i].innerHTML = '<div class="status">Initiating tides...</div>';
-            getTides(els[i], getWaterTemp);
+            getTides(els[i], curve, getWaterTemp);
         };
             
     }
@@ -93,15 +95,16 @@
     
     /*
      * Get tide data from https://tidesandcurrents.noaa.gov/
-     * @param el obj the tide widget element
+     * @param el el the tide widget element
+     * @param curve obj the curve dimensions
      * @param success func the function to handle the response
      */
-    function getTides(el, success) {
+    function getTides(el, curve, success) {
         var d, date, url, xmlhttp = new XMLHttpRequest();
         
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
-				success(el, JSON.parse(xmlhttp.responseText), buildChart);
+				success(el, curve, JSON.parse(xmlhttp.responseText), buildChart);
 			}
 		};
         
@@ -118,16 +121,17 @@
     
     /*
      * Get water level data from https://tidesandcurrents.noaa.gov/
-     * @param el obj the tide widget element
+     * @param el el the tide widget element
+     * @param curve obj the curve dimensions
      * @param tides obj the tides data
      * @param success func the function to handle the response
      */
-    function getWaterTemp(el, tides, success) {
+    function getWaterTemp(el, curve, tides, success) {
         var url, xmlhttp = new XMLHttpRequest();
         
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
-				success(el, tides, JSON.parse(xmlhttp.responseText));
+				success(el, curve, tides, JSON.parse(xmlhttp.responseText));
 			}
 		};
 		
@@ -140,11 +144,12 @@
     
     /*
      * Build chart and display
-     * @param el obj the tide widget element
+     * @param el el the tide widget element
+     * @param curve obj the curve dimensions
      * @param tides obj the parsed tides data
      * @param temp obj the parsed temperature data
      */
-    function buildChart(el, tides, temp) {
+    function buildChart(el, curve, tides, temp) {
 		tides = tides.predictions;
         temp = temp.data;
                 
@@ -163,9 +168,9 @@
                                 
         output = '<div class="uri-tides-metrics">';
         output += '<span class="label">WATER TEMP</span>';
-        output += '<div style="display: ' + display.imperial + '" title="Switch to celcius">';
+        output += '<div style="display: ' + display.imperial + '; font-size: ' + curve.bound + 'px" title="Switch to celcius">';
         output += temp[0].v + '&#176;<em>F</em>';
-        output += '</div><div style="display: ' + display.metric + '" title="Switch to fahrenheit">';
+        output += '</div><div style="display: ' + display.metric + '; font-size: ' + curve.bound + 'px" title="Switch to fahrenheit">';
         output += Math.round((temp[0].v - 32) * 5 / 9 * 10) / 10 + '&#176;<em>C</em>';
         output += '</div>';
         output += '</div>';

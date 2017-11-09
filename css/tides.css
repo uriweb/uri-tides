@@ -49,11 +49,13 @@
     margin-bottom: 3px;
 }
 
+.uri-tides-metrics {
+    margin-right: 20px;
+}
+
 .uri-tides-metrics>div {
-    font-size: 30px;
     font-weight: 600;
     float: left;
-    margin-right: 10px;
 }
 
 .uri-tides-metrics>div:hover {
@@ -61,8 +63,7 @@
 }
 
 .uri-tides-metrics em {
-    margin-right: 1rem;
-    font-size: 20px;
+    font-size: 66%;
     font-weight: 700;
 }
 
