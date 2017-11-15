@@ -43,6 +43,7 @@ function uri_tides_shortcode($attributes, $content, $shortcode) {
     // Attributes
 	extract( shortcode_atts(
 		array(
+            'station' => '8454049',
             'darkmode' => false,
             'height' => '30',
             'class' => ''
@@ -59,7 +60,7 @@ function uri_tides_shortcode($attributes, $content, $shortcode) {
         $output .= ' ' . $class;
     }
         
-    $output .= '" data-height="' . $height . '"><span class="status">Water data is unavailable</span></div>';
+    $output .= '" data-station="' . $station . '" " data-height="' . $height . '"><span class="status">Water data is unavailable</span></div>';
     
     return $output;
     

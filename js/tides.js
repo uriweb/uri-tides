@@ -6,7 +6,6 @@
      * See CO-OPS JSON API documentation at https://tidesandcurrents.noaa.gov/api/
      */
     var parameters = {
-        'station' : '8454049',
         'timezone' : 'GMT',
         'baseURL' : 'https://tidesandcurrents.noaa.gov/api/datagetter?'
     };
@@ -86,8 +85,11 @@
                 'padding' : h * (1/6)
             };
             
+            // Set the station id
+            var station = els[i].getAttribute('data-station');
+            
             els[i].innerHTML = '<div class="status">Initiating tides...</div>';
-            getTides(els[i], curve, getWaterTemp);
+            getTides(els[i], curve, station, getWaterTemp);
         };
             
     }
@@ -97,14 +99,15 @@
      * Get tide data from https://tidesandcurrents.noaa.gov/
      * @param el el the tide widget element
      * @param curve obj the curve dimensions
+     * @param station str the station id
      * @param success func the function to handle the response
      */
-    function getTides(el, curve, success) {
+    function getTides(el, curve, station, success) {
         var d, date, url, xmlhttp = new XMLHttpRequest();
-        
+                
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
-				success(el, curve, JSON.parse(xmlhttp.responseText), buildChart);
+				success(el, curve, station, JSON.parse(xmlhttp.responseText), buildChart);
 			}
 		};
         
@@ -112,7 +115,7 @@
         d = new Date();
         date = d.getFullYear() + ("0" + (d.getMonth() + 1)).slice(-2) + ("0" + d.getDate()).slice(-2);
         
-        url = parameters.baseURL + 'product=predictions&application=NOS.COOPS.TAC.WL&begin_date=' + (parseInt(date) - 1) + '&end_date=' + (parseInt(date) + 1) + '&datum=MLLW&station=' + parameters.station + '&time_zone=' + parameters.timezone + '&units=english&interval=hilo&format=json';
+        url = parameters.baseURL + 'product=predictions&application=NOS.COOPS.TAC.WL&begin_date=' + (parseInt(date) - 1) + '&end_date=' + (parseInt(date) + 1) + '&datum=MLLW&station=' + station + '&time_zone=' + parameters.timezone + '&units=english&interval=hilo&format=json';
         xmlhttp.open('GET', url, true);
 		xmlhttp.send();
     
@@ -123,19 +126,20 @@
      * Get water level data from https://tidesandcurrents.noaa.gov/
      * @param el el the tide widget element
      * @param curve obj the curve dimensions
+     * @param station str the station id
      * @param tides obj the tides data
      * @param success func the function to handle the response
      */
-    function getWaterTemp(el, curve, tides, success) {
+    function getWaterTemp(el, curve, station, tides, success) {
         var url, xmlhttp = new XMLHttpRequest();
-        
+                
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
-				success(el, curve, tides, JSON.parse(xmlhttp.responseText));
+				success(el, curve, station, tides, JSON.parse(xmlhttp.responseText));
 			}
 		};
 		
-        url = parameters.baseURL + 'product=water_temperature&application=NOS.COOPS.TAC.PHYSOCEAN&date=latest&station=' + parameters.station + '&time_zone=' + parameters.timezone + '&units=english&interval=6&format=json';
+        url = parameters.baseURL + 'product=water_temperature&application=NOS.COOPS.TAC.PHYSOCEAN&date=latest&station=' + station + '&time_zone=' + parameters.timezone + '&units=english&interval=6&format=json';
 		xmlhttp.open('GET', url, true);
 		xmlhttp.send();
     
@@ -146,10 +150,11 @@
      * Build chart and display
      * @param el el the tide widget element
      * @param curve obj the curve dimensions
+     * @param station str the station id
      * @param tides obj the parsed tides data
      * @param temp obj the parsed temperature data
      */
-    function buildChart(el, curve, tides, temp) {
+    function buildChart(el, curve, station, tides, temp) {
 		tides = tides.predictions;
         temp = temp.data;
                 
@@ -226,7 +231,7 @@
         output += '</svg>';
         output += '</div>';
         
-        output += '<div class="uri-tides-source">Source: <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=' + parameters.station + '" title="NOAA Center for Operational Oceanographic Producs and Services">NOAA/NOS/CO-OPS</a></div>';
+        output += '<div class="uri-tides-source">Source: <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=' + station + '" title="NOAA Center for Operational Oceanographic Producs and Services">NOAA/NOS/CO-OPS</a></div>';
         
         
         // Display
