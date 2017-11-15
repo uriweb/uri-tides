@@ -9,7 +9,8 @@ The widget pulls in live water temp and tide prediction data from NOAA Quonset P
 The tides widget is somewhat configurable by adding attributes to the shortcode:
 
 **`station`** (num)(optional)  
-The NOAA station ID from which to retrieve data. The default is Quonset Point, RI. (default: `8454049`)
+The NOAA station ID from which to retrieve data. The default is Quonset Point, RI. (default: `8454049`)  
+Find a station on NOAA's [tides and currents website](https://tidesandcurrents.noaa.gov/stations.html)
 
 **`height`** (num)(optional)  
 Set a height in pixels for the tide chart (do not include units). The water temp will scale accordingly. (default: `30`)
