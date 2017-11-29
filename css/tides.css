@@ -24,7 +24,12 @@
 
 .uri-tides-widget .status {
     font-size: 10px;
-    color: #ccc;
+    color: rgba(0,0,0,.3);
+    border-radius: 2px;
+}
+
+.uri-tides-widget.darkmode .status {
+    color: rgba(255,255,255,.5);
 }
 
 .uri-tides-graphic {

@@ -60,7 +60,7 @@ function uri_tides_shortcode($attributes, $content, $shortcode) {
         $output .= ' ' . $class;
     }
         
-    $output .= '" data-station="' . $station . '" " data-height="' . $height . '"><span class="status">Water data is unavailable</span></div>';
+    $output .= '" data-station="' . $station . '" " data-height="' . $height . '"><span class="status"></span></div>';
     
     return $output;
     

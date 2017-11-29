@@ -59,6 +59,11 @@
             });
         }
         
+        static status(el, m) {
+            var s = el.querySelector('.status');
+            s.innerHTML = m;
+        }  
+        
     } // End helpers
              
     
@@ -88,7 +93,7 @@
             // Set the station id
             var station = els[i].getAttribute('data-station');
             
-            els[i].innerHTML = '<div class="status">Initiating tides...</div>';
+            helpers.status(els[i], 'Initiating tides...');
             getTides(els[i], curve, station, getWaterTemp);
         };
             
@@ -108,7 +113,9 @@
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
 				success(el, curve, station, JSON.parse(xmlhttp.responseText), buildChart);
-			}
+			} else {
+                helpers.status(el, 'Tide data is unavailable.');
+            }
 		};
         
         // Get 3 days of predictions, centered on the current date
@@ -136,7 +143,9 @@
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
 				success(el, curve, station, tides, JSON.parse(xmlhttp.responseText));
-			}
+			} else {
+                helpers.status(el, 'Tide data is unavailable.');
+            }
 		};
 		
         url = parameters.baseURL + 'product=water_temperature&application=NOS.COOPS.TAC.PHYSOCEAN&date=latest&station=' + station + '&time_zone=' + parameters.timezone + '&units=english&interval=6&format=json';
