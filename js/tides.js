@@ -59,6 +59,11 @@
             });
         }
         
+        static formatDate(d, offset) {
+            d.setDate( d.getDate() + offset );
+            return d.getFullYear() + ("0" + (d.getMonth() + 1)).slice(-2) + ("0" + d.getDate()).slice(-2);
+        }
+        
         static status(el, m) {
             var s = el.querySelector('.status');
             s.innerHTML = m;
@@ -108,7 +113,7 @@
      * @param success func the function to handle the response
      */
     function getTides(el, curve, station, success) {
-        var d, date, url, xmlhttp = new XMLHttpRequest();
+        var d, beginDate, endDate, url, xmlhttp = new XMLHttpRequest();
                 
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
@@ -120,9 +125,11 @@
         
         // Get 3 days of predictions, centered on the current date
         d = new Date();
-        date = d.getFullYear() + ("0" + (d.getMonth() + 1)).slice(-2) + ("0" + d.getDate()).slice(-2);
         
-        url = parameters.baseURL + 'product=predictions&application=NOS.COOPS.TAC.WL&begin_date=' + (parseInt(date) - 1) + '&end_date=' + (parseInt(date) + 1) + '&datum=MLLW&station=' + station + '&time_zone=' + parameters.timezone + '&units=english&interval=hilo&format=json';
+        beginDate = helpers.formatDate( d, -1 );
+        endDate = helpers.formatDate( d, 2 );
+     
+        url = parameters.baseURL + 'product=predictions&application=NOS.COOPS.TAC.WL&begin_date=' + beginDate + '&end_date=' + endDate + '&datum=MLLW&station=' + station + '&time_zone=' + parameters.timezone + '&units=english&interval=hilo&format=json';
         xmlhttp.open('GET', url, true);
 		xmlhttp.send();
     
@@ -144,7 +151,7 @@
 			if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
 				success(el, curve, station, tides, JSON.parse(xmlhttp.responseText));
 			} else {
-                helpers.status(el, 'Tide data is unavailable.');
+                helpers.status(el, 'Temp data is unavailable.');
             }
 		};
 		
