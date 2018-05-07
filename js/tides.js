@@ -98,7 +98,7 @@
             // Set the station id
             var station = els[i].getAttribute('data-station');
             
-            helpers.status(els[i], 'Initiating tides...');
+            helpers.status(els[i], 'Initiating tide data...');
             getTides(els[i], curve, station, getWaterTemp);
         };
             
@@ -119,7 +119,8 @@
 			if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
 				success(el, curve, station, JSON.parse(xmlhttp.responseText), buildChart);
 			} else {
-                helpers.status(el, 'Tide data is unavailable.');
+                helpers.status(el, 'NOAA tide data is unavailable.');
+                // console.log('no tide data');
             }
 		};
         
@@ -151,7 +152,8 @@
 			if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
 				success(el, curve, station, tides, JSON.parse(xmlhttp.responseText));
 			} else {
-                helpers.status(el, 'Temp data is unavailable.');
+                helpers.status(el, 'NOAA tide data is unavailable.');
+                // console.log('no temp data');
             }
 		};
 		
