@@ -98,7 +98,7 @@
             // Set the station id
             var station = els[i].getAttribute('data-station');
             
-            helpers.status(els[i], 'Initiating tides...');
+            helpers.status(els[i], 'Initiating tide data...');
             getTides(els[i], curve, station, getWaterTemp);
         };
             
@@ -119,7 +119,8 @@
 			if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
 				success(el, curve, station, JSON.parse(xmlhttp.responseText), buildChart);
 			} else {
-                helpers.status(el, 'Tide data is unavailable.');
+                helpers.status(el, 'NOAA tide data is unavailable.');
+                // console.log('no tide data');
             }
 		};
         
@@ -151,7 +152,8 @@
 			if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
 				success(el, curve, station, tides, JSON.parse(xmlhttp.responseText));
 			} else {
-                helpers.status(el, 'Temp data is unavailable.');
+                helpers.status(el, 'NOAA tide data is unavailable.');
+                // console.log('no temp data');
             }
 		};
 		
@@ -227,8 +229,10 @@
         
         // Determine the position of the current tide in time along the displayed cycle
         if (m.last == 'L') {
+            m.status = 'Tide is rising';
             m.x = (m.x >= m.quarter) ? m.x - m.quarter : m.x + m.quarter * 3;
         } else {
+            m.status = 'Tide is falling';
             m.x = m.x + m.quarter;
         }
         
@@ -242,6 +246,7 @@
         // Put it all together, converting the x and y positions to proportions of the SVG dimensions
         output += '<div class="uri-tides-tide">';
         output += '<span class="label">TIDE</span>';
+        output += '<div class="screenreader">' + m.status + '</div>';
         output += '<svg height="' + (curve.height + curve.padding * 2) + 'px" width="' + (curve.width + curve.padding * 2) + 'px" class="uri-tides-graphic">';
         output += '<circle cx="' + (curve.width / m.cycle * m.x + curve.padding) + '" cy="' + (curve.height - curve.height / 2 * m.y + curve.padding) + '" r="' + curve.padding + '" stroke="black" stroke-width="0" fill="' + fillcolor + '" />';
         output += '</svg>';

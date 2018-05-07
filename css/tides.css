@@ -32,6 +32,11 @@
     color: rgba(255,255,255,.5);
 }
 
+.uri-tides-widget .screenreader {
+    position: absolute;
+    left: -9999px;
+}
+
 .uri-tides-graphic {
     background-image: url(../i/sine.png);
     background-size: 100% 100%;
