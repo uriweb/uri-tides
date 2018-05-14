@@ -138,7 +138,7 @@
 
     
     /*
-     * Get water level data from https://tidesandcurrents.noaa.gov/
+     * Get water temp data from https://tidesandcurrents.noaa.gov/
      * @param el el the tide widget element
      * @param curve obj the curve dimensions
      * @param station str the station id
