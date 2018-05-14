@@ -18,8 +18,10 @@ if ( !defined('ABSPATH') )
  * Loads up the javascript
  */
 function uri_tides_scripts() {
-    wp_register_script( 'uri-tides', plugins_url( '/js/tides.js', __FILE__ ) );
-    wp_enqueue_script( 'uri-tides' );
+	wp_register_script( 'uri-tides', plugins_url( '/js/tides.js', __FILE__ ) );
+	wp_enqueue_script( 'uri-tides' );
+	$tides = uri_tides_get_data();
+	wp_localize_script( 'uri-tides', 'tides', $tides);
 }
 
 
@@ -27,8 +29,8 @@ function uri_tides_scripts() {
  * Loads up the css
  */
 function uri_tides_styles() {
-    wp_register_style( 'uri-tides-css', plugins_url( '/css/tides.css', __FILE__ ) );    
-    wp_enqueue_style( 'uri-tides-css' );
+	wp_register_style( 'uri-tides-css', plugins_url( '/css/tides.css', __FILE__ ) );    
+	wp_enqueue_style( 'uri-tides-css' );
 }
 
 
@@ -36,36 +38,35 @@ function uri_tides_styles() {
  * Shortcode callback
  */
 function uri_tides_shortcode($attributes, $content, $shortcode) {
-    
-    uri_tides_scripts();
-    uri_tides_styles();
-    
-    $tides = uri_tides_get_data();
-    
-    // Attributes
-		extract( shortcode_atts(
-			array(
-				'station' => '8454049',
-				'darkmode' => false,
-				'height' => '30',
-				'class' => ''
-			), $attributes )
-		);
-	
-    $output = '<div class="uri-tides-widget';
-    
-    if ($darkmode) {
-        $output .= ' darkmode';
-    }
-    
-    if (!empty($class)) {
-        $output .= ' ' . $class;
-    }
-        
-    $output .= '" data-station="' . $station . '" " data-height="' . $height . '"><span class="status"></span></div>';
-    
-    return $output;
-    
+   
+	uri_tides_scripts();
+	uri_tides_styles();
+
+
+	// Attributes
+	extract( shortcode_atts(
+		array(
+			'station' => '8454049',
+			'darkmode' => false,
+			'height' => '30',
+			'class' => ''
+		), $attributes )
+	);
+
+	$output = '<div class="uri-tides-widget';
+
+	if ($darkmode) {
+			$output .= ' darkmode';
+	}
+
+	if (!empty($class)) {
+			$output .= ' ' . $class;
+	}
+		
+	$output .= '" data-station="' . $station . '" " data-height="' . $height . '"><span class="status"></span></div>';
+
+	return $output;
+
 }
 add_shortcode( 'uri-tides', 'uri_tides_shortcode' );
 
@@ -131,15 +132,23 @@ function uri_tides_get_data( ) {
  * @return str
  */
 function _uri_tides_build_url( $q='temperature', $station='8454049' ) {
+	$base = 'https://tidesandcurrents.noaa.gov/api/datagetter?';
 	$application = 'NOS.COOPS.TAC.' . ($q == 'temperature') ? 'PHYSOCEAN' : 'WL';
+	
+	if($q == 'temperature' ) {
+		$url = $base . 'product=water_temperature&application=' . $application . 
+					'&date=latest&station=' . $station . 
+					'&time_zone=GMT&units=english&interval=6&format=json';
+	} else {
+		$start_date = date( 'Ymd', strtotime( 'yesterday' ) );
+		$end_date = date( 'Ymd', strtotime( '+2 days' ) );
 
-	$start_date = date( 'Ymd', strtotime( 'yesterday' ) );
-	$end_date = date( 'Ymd', strtotime( '+2 days' ) );
-
-	$url = 'https://tidesandcurrents.noaa.gov/api/datagetter?product=predictions&application=' . 
+		$url = $base . 'product=predictions&application=' .
 					$application . '&begin_date=' . $start_date . '&end_date=' . $end_date . 
 					'&datum=MLLW&station=' . $station . 
 					'&time_zone=GMT&units=english&interval=hilo&format=json';
+					
+	}
 	
 	return $url;
 }
