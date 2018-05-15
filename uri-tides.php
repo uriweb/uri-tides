@@ -7,6 +7,7 @@ Version: 1.0.0
 Author: URI Web Communications
 Author URI: 
 @author: Brandon Fuller <bjcfuller@uri.edu>
+@author: John Pennypacker <jpennypacker@uri.edu>
 */
 
 // Block direct requests
@@ -75,6 +76,34 @@ add_shortcode( 'uri-tides', 'uri_tides_shortcode' );
 
 
 
+/**
+ * WP CRON SETTINGS
+ * Set up a cron interval to run every 10 minutes
+ */
+function uri_tides_add_cron_interval( $schedules ) {
+	$schedules['ten_minutes'] = array(
+		'interval' => 60 * 10,
+		'display' => esc_html__( 'Every Ten Minutes' ),
+	);
+	return $schedules;
+}
+add_filter( 'cron_schedules', 'uri_tides_add_cron_interval' );
+
+add_action( 'uri_tides_cron_hook', 'uri_tides_query_buoy' );
+
+if ( ! wp_next_scheduled( 'uri_tides_cron_hook' ) ) {
+	wp_schedule_event( time(), 'ten_minutes', 'uri_tides_cron_hook' );
+}
+
+ 
+/**
+ * Deactivate the cron setting if the plugin is shut off
+ */
+function uri_tides_deactivate() {
+   $timestamp = wp_next_scheduled( 'uri_tides_cron_hook' );
+   wp_unschedule_event( $timestamp, 'uri_tides_cron_hook' );
+}
+register_deactivation_hook( __FILE__, 'uri_tides_deactivate' );
 
 
 /**
@@ -82,8 +111,15 @@ add_shortcode( 'uri-tides', 'uri_tides_shortcode' );
  * Checks for a cache
  * if we have a good cache, we use that.
  * otherwise, we query new tides data, and if it's good, we cache it.
+ *
+ * This is likely redundant due to the cron activity, but the code's here, and it 
+ * won't run if there's a recent cache
+ * @see uri_tides_add_cron_interval()
+ * 
+ * Why not a transient?  Because I'm a control freak 
+ * who would rather have stale data than no data
  */
-function uri_tides_get_data( ) {
+function uri_tides_get_data() {
 
 	$refresh_cache = FALSE;
 	
@@ -110,21 +146,34 @@ function uri_tides_get_data( ) {
 	if( $refresh_cache ) {
 		//echo '<pre>Pull fresh tides and cache them</pre>';
 		
-		$station = '8454049';
-		$tides_data = array();
+		$tides_data = uri_tides_query_buoy();
 		
-		$tides_data['temperature'] = _uri_tides_query( _uri_tides_build_url ( 'temperature', $station ) );
-		$tides_data['tide'] = _uri_tides_query( _uri_tides_build_url ( 'tide', $station ) );
-		
-		if ( $tides_data['temperature'] !== FALSE && $tides_data['tide'] !== FALSE ) {
+		if($tides_data !== FALSE) {
 			uri_tides_write_cache($tides_data);
-		}	
+		}
+		
 	}
 	
 	return $tides_data;
 
 }
 
+/**
+ * Query the NOAA buoy
+ * @return mixed; arr on success, bool false on failure
+ */
+function uri_tides_query_buoy() {
+	$station = '8454049';
+	$tides_data = array();
+	$tides_data['temperature'] = _uri_tides_query( _uri_tides_build_url ( 'temperature', $station ) );
+	$tides_data['tide'] = _uri_tides_query( _uri_tides_build_url ( 'tide', $station ) );
+	
+	if ( $tides_data['temperature'] !== FALSE && $tides_data['tide'] !== FALSE ) {
+		return $tides_data;
+	}	else {
+		return FALSE;
+	}
+}
 
 /**
  * Build the URL for the tides request
