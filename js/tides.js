@@ -99,106 +99,43 @@
             var station = els[i].getAttribute('data-station');
             
             helpers.status(els[i], 'Initiating tide data...');
-            getTides(els[i], curve, station, getWaterTemp);
+            buildChart(els[i], curve, station, );
         };
             
     }
 
-    
-    /*
-     * Get tide data from https://tidesandcurrents.noaa.gov/
-     * @param el el the tide widget element
-     * @param curve obj the curve dimensions
-     * @param station str the station id
-     * @param success func the function to handle the response
-     */
-    function getTides(el, curve, station, success) {
-        var d, beginDate, endDate, url, xmlhttp = new XMLHttpRequest();
-                
-		xmlhttp.onreadystatechange = function() {
-			if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
-				success(el, curve, station, JSON.parse(xmlhttp.responseText), buildChart);
-			} else {
-                helpers.status(el, 'NOAA tide data is unavailable.');
-                // console.log('no tide data');
-            }
-		};
-        
-        // Get 3 days of predictions, centered on the current date
-        d = new Date();
-        
-        beginDate = helpers.formatDate( d, -1 );
-        endDate = helpers.formatDate( d, 2 );
-     
-        url = parameters.baseURL + 'product=predictions&application=NOS.COOPS.TAC.WL&begin_date=' + beginDate + '&end_date=' + endDate + '&datum=MLLW&station=' + station + '&time_zone=' + parameters.timezone + '&units=english&interval=hilo&format=json';
-        xmlhttp.open('GET', url, true);
-		xmlhttp.send();
-    
-	}
-
-    
-    /*
-     * Get water temp data from https://tidesandcurrents.noaa.gov/
-     * @param el el the tide widget element
-     * @param curve obj the curve dimensions
-     * @param station str the station id
-     * @param tides obj the tides data
-     * @param success func the function to handle the response
-     */
-    function getWaterTemp(el, curve, station, tides, success) {
-        var url, xmlhttp = new XMLHttpRequest();
-                
-		xmlhttp.onreadystatechange = function() {
-			if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
-				success(el, curve, station, tides, JSON.parse(xmlhttp.responseText));
-			} else {
-                helpers.status(el, 'NOAA tide data is unavailable.');
-                // console.log('no temp data');
-            }
-		};
-		
-        url = parameters.baseURL + 'product=water_temperature&application=NOS.COOPS.TAC.PHYSOCEAN&date=latest&station=' + station + '&time_zone=' + parameters.timezone + '&units=english&interval=6&format=json';
-		xmlhttp.open('GET', url, true);
-		xmlhttp.send();
-    
-	}
-    
-    
     /*
      * Build chart and display
      * @param el el the tide widget element
      * @param curve obj the curve dimensions
-     * @param station str the station id
-     * @param tides obj the parsed tides data
-     * @param temp obj the parsed temperature data
      */
-    function buildChart(el, curve, station, tides, temp) {
-		tides = tides.predictions;
-        temp = temp.data;
-                
-        var tideHeight,
-            output,
-            display = {
-                'imperial' : 'block',
-                'metric' : 'none'
-            }, 
-            cname = 'uri-tides-water-temp';
-                
-        if (helpers.getCookie(cname)== 'metric') {
-            display.imperial = 'none';
-            display.metric = 'block';
-        }
-                                
-        output = '<div class="uri-tides-metrics">';
-        output += '<span class="label">WATER</span>';
-        output += '<div style="display: ' + display.imperial + '; font-size: ' + curve.bound + 'px" title="Switch to celcius">';
-        output += parseFloat(temp[0].v).toFixed(1) + '&#176;<em>F</em>';
-        output += '</div><div style="display: ' + display.metric + '; font-size: ' + curve.bound + 'px" title="Switch to fahrenheit">';
-        output += parseFloat(Math.round((temp[0].v - 32) * 5 / 9 * 10) / 10).toFixed(1) + '&#176;<em>C</em>';
-        output += '</div>';
-        output += '</div>';
-        
-        
+		function buildChart(el, curve, station) {
+
+			var tideHeight,
+					output,
+					tide = tides.tide.predictions,
+					temp = tides.temperature.data,
+					display = {
+							'imperial' : 'block',
+							'metric' : 'none'
+					}, 
+					cname = 'uri-tides-water-temp';
+							
+			if (helpers.getCookie(cname) == 'metric') {
+					display.imperial = 'none';
+					display.metric = 'block';
+			}
+															
+			output = '<div class="uri-tides-metrics">';
+			output += '<span class="label">WATER</span>';
+			output += '<div style="display: ' + display.imperial + '; font-size: ' + curve.bound + 'px" title="Switch to celcius">';
+			output += parseFloat(temp[0].v).toFixed(1) + '&#176;<em>F</em>';
+			output += '</div><div style="display: ' + display.metric + '; font-size: ' + curve.bound + 'px" title="Switch to fahrenheit">';
+			output += parseFloat(Math.round((temp[0].v - 32) * 5 / 9 * 10) / 10).toFixed(1) + '&#176;<em>C</em>';
+			output += '</div>';
+			output += '</div>';
+			
+			
         /*
          * Build the SVG
          */
@@ -210,13 +147,13 @@
             i;
                              
         // Convert and push tide times to new array for use in next step
-        for (i=0; i<tides.length; i++) {
-            var t = tides[i].t.replace(' ', 'T') + 'Z';
+        for (i=0; i<tide.length; i++) {
+            var t = tide[i].t.replace(' ', 'T') + 'Z';
             times.push(new Date(t));
                         
             if (now < times[i]) {
                 m.x = now - times[i-1];
-                m.last = tides[i-1].type;
+                m.last = tide[i-1].type;
                 break;
             }
         }
