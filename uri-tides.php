@@ -93,6 +93,7 @@ add_filter( 'cron_schedules', 'uri_tides_add_cron_interval' );
 // https://developer.wordpress.org/plugins/cron/scheduling-wp-cron-events/
 add_action( 'uri_tides_cron_hook', 'uri_tides_query_buoy' );
 
+// finally, make sure that get tides is going run during the next 10 minute cron run
 if ( ! wp_next_scheduled( 'uri_tides_cron_hook' ) ) {
 	wp_schedule_event( time(), 'ten_minutes', 'uri_tides_cron_hook' );
 }
@@ -102,8 +103,8 @@ if ( ! wp_next_scheduled( 'uri_tides_cron_hook' ) ) {
  * Deactivate the cron setting if the plugin is shut off
  */
 function uri_tides_deactivate() {
-   $timestamp = wp_next_scheduled( 'uri_tides_cron_hook' );
-   wp_unschedule_event( $timestamp, 'uri_tides_cron_hook' );
+	$timestamp = wp_next_scheduled( 'uri_tides_cron_hook' );
+	wp_unschedule_event( $timestamp, 'uri_tides_cron_hook' );
 }
 register_deactivation_hook( __FILE__, 'uri_tides_deactivate' );
 
