@@ -128,7 +128,7 @@
 															
 			output = '<div class="uri-tides-metrics">';
 			output += '<span class="label">WATER</span>';
-			output += '<div style="display: ' + display.imperial + '; font-size: ' + curve.bound + 'px" title="Switch to celcius">';
+			output += '<div style="display: ' + display.imperial + '; font-size: ' + curve.bound + 'px" title="Switch to celsius">';
 			output += parseFloat(temp[0].v).toFixed(1) + '&#176;<em>F</em>';
 			output += '</div><div style="display: ' + display.metric + '; font-size: ' + curve.bound + 'px" title="Switch to fahrenheit">';
 			output += parseFloat(Math.round((temp[0].v - 32) * 5 / 9 * 10) / 10).toFixed(1) + '&#176;<em>C</em>';
