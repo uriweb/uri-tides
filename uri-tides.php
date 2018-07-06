@@ -3,7 +3,7 @@
 Plugin Name: URI Tides
 Plugin URI: http://www.uri.edu
 Description: Live tide data from NOAA
-Version: 1.1
+Version: 1.1.1
 Author: URI Web Communications
 Author URI: 
 @author: Brandon Fuller <bjcfuller@uri.edu>
