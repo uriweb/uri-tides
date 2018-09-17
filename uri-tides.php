@@ -151,11 +151,44 @@ function uri_tides_get_data() {
 		
 		if($tides_data !== FALSE) {
 			uri_tides_write_cache($tides_data);
+		} else {
+			// the cache is expired, but the fresh buoy response is invalid.
+			// extend the cache life span for an hour
+			$expires_on = strtotime( '+1 hour', strtotime('now') );
+			$tides_data = _uri_tides_load_cache();
+			uri_tides_write_cache($tides_data, $expires_on);
+			
+			// notify the administrator of a problem
+			_uri_tides_notify_administrator( $tides_data );
+			
 		}
 		
 	}
-	
+	// reload the tides data from the database to capitalize on cache updates
+	$tides_data = _uri_tides_load_cache();
+
 	return $tides_data;
+}
+
+/**
+ * Send a notification to the administrator about the cache status
+ * @param $tides_data arr the tides data 
+ * @return bool
+ */
+function _uri_tides_notify_administrator( $tides_data ) {
+	$to = get_option('admin_email');
+	if( empty ( $admin_email ) ) {
+		$to = 'jpennypacker@uri.edu';
+	}
+	$tz = get_option('timezone_string');
+	$date = (new DateTime('@' . $tides_data['date']))->setTimezone(new DateTimeZone( $tz ));
+	$expiry = (new DateTime('@' . $tides_data['date']))->setTimezone(new DateTimeZone( $tz ));
+
+	$subject = 'URI Tides failed to update tide data';
+	$message = "The last time that tides data was refreshed successfully was on: " .  $date->format( 'Y-m-d\TH:i:s' );
+	$message .= "\n\n";
+	$message .= "The site will try to refresh tides information on: " .  $expiry->format( 'Y-m-d\TH:i:s' );
+	return wp_mail($to, $subject, $message );
 }
 
 /**
@@ -217,11 +250,19 @@ function _uri_tides_build_url( $q='temperature', $station='8454049' ) {
 /**
  * Save the data retrieved from the NOAA buoy as a WordPress site-wide option
  * @param arr $tides_data is an array of tides data [temperature, tide]
+ * @param str $expires_on expects a date object for some time in the future, if empty, 
+ *   it'll use the value set in the admin preferences (or the default five minutes)
  */
-function uri_tides_write_cache( $tides_data ) {
-	$recency = get_site_option( 'uri_tides_recency', '5 minutes' );
+function uri_tides_write_cache( $tides_data, $expires_on='' ) {
+
+	// if expires on is empty or not in the future, set a new expiry date
+	if ( empty ( $expires_on ) || !($expires_on > strtotime('now')) ) {
+		$recency = get_site_option( 'uri_tides_recency', '5 minutes' );
+		$expires_on = strtotime( '+'.$recency, strtotime('now') );
+	}
+
 	$tides_data['date'] = strtotime('now');
-	$tides_data['expires_on'] = strtotime( '+'.$recency, strtotime('now') );
+	$tides_data['expires_on'] = $expires_on;
 	update_site_option( 'uri_tides_cache', $tides_data, TRUE );
 }
 
@@ -232,8 +273,8 @@ function uri_tides_write_cache( $tides_data ) {
  * @return bool
  */
 function uri_tides_is_expired( $date ) {
-	$expiry = strtotime('now');
-	return ( $date < $expiry );
+	return TRUE;
+	return ( $date < strtotime('now') );
 }
 
 
