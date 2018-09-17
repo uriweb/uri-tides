@@ -153,7 +153,7 @@ function uri_tides_get_data() {
 			uri_tides_write_cache($tides_data);
 		} else {
 			// the cache is expired, but the fresh buoy response is invalid.
-			// extend the cache life span for an hour
+			// extend the cache's lifespan for an hour
 			$expires_on = strtotime( '+1 hour', strtotime('now') );
 			$tides_data = _uri_tides_load_cache();
 			uri_tides_write_cache($tides_data, $expires_on);
@@ -182,12 +182,13 @@ function _uri_tides_notify_administrator( $tides_data ) {
 	}
 	$tz = get_option('timezone_string');
 	$date = (new DateTime('@' . $tides_data['date']))->setTimezone(new DateTimeZone( $tz ));
-	$expiry = (new DateTime('@' . $tides_data['date']))->setTimezone(new DateTimeZone( $tz ));
+	$expiry = (new DateTime('@' . $tides_data['expires_on']))->setTimezone(new DateTimeZone( $tz ));
 
 	$subject = 'URI Tides failed to update tide data';
 	$message = "The last time that tides data was refreshed successfully was on: " .  $date->format( 'Y-m-d\TH:i:s' );
 	$message .= "\n\n";
 	$message .= "The site will try to refresh tides information on: " .  $expiry->format( 'Y-m-d\TH:i:s' );
+		
 	return wp_mail($to, $subject, $message );
 }
 
@@ -227,6 +228,7 @@ function uri_tides_query_buoy() {
  */
 function _uri_tides_build_url( $q='temperature', $station='8454049' ) {
 	$base = 'https://tidesandcurrents.noaa.gov/api/datagetter?';
+	$base = 'https://ppkr.local/api/datagetter?';
 	$application = 'NOS.COOPS.TAC.' . ($q == 'temperature') ? 'PHYSOCEAN' : 'WL';
 	
 	if($q == 'temperature' ) {
