@@ -185,9 +185,9 @@ function _uri_tides_notify_administrator( $tides_data ) {
 	$expiry = (new DateTime('@' . $tides_data['expires_on']))->setTimezone(new DateTimeZone( $tz ));
 
 	$subject = 'URI Tides failed to update tide data';
-	$message = "The last time that tides data was refreshed successfully was on: " .  $date->format( 'Y-m-d\TH:i:s' );
+	$message = "The last time that tides data was refreshed successfully was on: " . $date->format( 'Y-m-d\TH:i:s' );
 	$message .= "\n\n";
-	$message .= "The site will try to refresh tides information on: " .  $expiry->format( 'Y-m-d\TH:i:s' );
+	$message .= "The site will try to refresh tides information on: " . $expiry->format( 'Y-m-d\TH:i:s' );
 		
 	return wp_mail($to, $subject, $message );
 }
@@ -199,6 +199,9 @@ function _uri_tides_load_cache() {
 	$tides_data = get_site_option( 'uri_tides_cache', FALSE);
 	if ( empty( $tides_data ) ) {
 		$tides_data = array();
+		// @todo: move these date setters to their own function.  they're similar in uri_tides_write_cache
+		$tides_data['date'] = strtotime('now');
+		$tides_data['expires_on'] = strtotime( '+'.get_site_option( 'uri_tides_recency', '5 minutes' ), strtotime('now') );
 	}
 	return $tides_data;
 }
@@ -228,7 +231,6 @@ function uri_tides_query_buoy() {
  */
 function _uri_tides_build_url( $q='temperature', $station='8454049' ) {
 	$base = 'https://tidesandcurrents.noaa.gov/api/datagetter?';
-	$base = 'https://ppkr.local/api/datagetter?';
 	$application = 'NOS.COOPS.TAC.' . ($q == 'temperature') ? 'PHYSOCEAN' : 'WL';
 	
 	if($q == 'temperature' ) {
