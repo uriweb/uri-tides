@@ -273,7 +273,6 @@ function uri_tides_write_cache( $tides_data, $expires_on='' ) {
  * @return bool
  */
 function uri_tides_is_expired( $date ) {
-	return TRUE;
 	return ( $date < strtotime('now') );
 }
 
@@ -293,6 +292,13 @@ function _uri_tides_query( $url ) {
 	
 	
 	$response = wp_safe_remote_get ( $url, $args );
+
+	if( is_wp_error ($response) ) {
+		// there was an error making the API call
+		return FALSE;	
+	} 
+	
+	// still here?  good.  it means WP got an acceptable response.  Let's validate it.
 	
 	if ( isset( $response['body'] ) && !empty( $response['body'] ) && wp_remote_retrieve_response_code($response) == '200' ) {
 		
@@ -301,20 +307,23 @@ function _uri_tides_query( $url ) {
 
 	} else {
 
+		echo 'There was an error with the URI Tides Plugin';
+
 		// still here?  Then we have an error condition
 	
 		if ( is_wp_error ( $response ) ) {
 			$error_message = $response->get_error_message();
-			echo 'There was an error with the URI Tides Plugin: ' . $error_message;
+			echo 'The error message is: ' . $error_message;
 			return FALSE;
 		}
 		if ( wp_remote_retrieve_response_code($response) != '200' ) {
+			echo 'The response code was not 200.';
 			echo $response;
 			return FALSE;
 		}
 
 		// still here?  the error condition is indeed unexpected
-		echo "Empty response from server?";
+		echo 'Empty response from server.';
 		return FALSE;
 	}
 }
