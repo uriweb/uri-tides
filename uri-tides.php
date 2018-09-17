@@ -199,9 +199,8 @@ function _uri_tides_load_cache() {
 	$tides_data = get_site_option( 'uri_tides_cache', FALSE);
 	if ( empty( $tides_data ) ) {
 		$tides_data = array();
-		// @todo: move these date setters to their own function.  they're similar in uri_tides_write_cache
-		$tides_data['date'] = strtotime('now');
-		$tides_data['expires_on'] = strtotime( '+'.get_site_option( 'uri_tides_recency', '5 minutes' ), strtotime('now') );
+		$tides_data['date'] = strtotime('now -10 seconds');
+		$tides_data['expires_on'] = strtotime('now -10 seconds');
 	}
 	return $tides_data;
 }
