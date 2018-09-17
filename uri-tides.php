@@ -127,16 +127,14 @@ function uri_tides_get_data() {
 	$refresh_cache = FALSE;
 	
 	// 1. load all cached tide data
-	$tides_data = get_site_option( 'uri_tides_cache', FALSE);
-	if ( empty( $tides_data ) ) {
-		$tides_data = array();
-	}
+	$tides_data = _uri_tides_load_cache();
 
 	// 2. check if we have a cache for this resource
 	if ( $tides_data !== FALSE ) {
-		// we've got cached data!
+		// we've got cached data
 		// 3. check if the cache has sufficient recency
-		if ( uri_tides_is_expired( $tides_data['date'] ) ) {
+		$expires_on = isset($tides_data['expires_on']) ? $tides_data['expires_on'] : $tides_data['date'];
+		if ( uri_tides_is_expired( $expires_on ) ) {
 			// cache is older than the specified recency, refresh it
 			// 4. refresh tides / update cache if needed
 			$refresh_cache = TRUE;
@@ -158,7 +156,17 @@ function uri_tides_get_data() {
 	}
 	
 	return $tides_data;
+}
 
+/**
+ * Retrieve the tides data from the database
+ */
+function _uri_tides_load_cache() {
+	$tides_data = get_site_option( 'uri_tides_cache', FALSE);
+	if ( empty( $tides_data ) ) {
+		$tides_data = array();
+	}
+	return $tides_data;
 }
 
 /**
@@ -174,6 +182,7 @@ function uri_tides_query_buoy() {
 	if ( $tides_data['temperature'] !== FALSE && $tides_data['tide'] !== FALSE ) {
 		return $tides_data;
 	}	else {
+		// 
 		return FALSE;
 	}
 }
@@ -210,7 +219,9 @@ function _uri_tides_build_url( $q='temperature', $station='8454049' ) {
  * @param arr $tides_data is an array of tides data [temperature, tide]
  */
 function uri_tides_write_cache( $tides_data ) {
+	$recency = get_site_option( 'uri_tides_recency', '5 minutes' );
 	$tides_data['date'] = strtotime('now');
+	$tides_data['expires_on'] = strtotime( '+'.$recency, strtotime('now') );
 	update_site_option( 'uri_tides_cache', $tides_data, TRUE );
 }
 
@@ -221,8 +232,7 @@ function uri_tides_write_cache( $tides_data ) {
  * @return bool
  */
 function uri_tides_is_expired( $date ) {
-	$recency = get_site_option( 'uri_tides_recency', '5 minutes' );
-	$expiry = strtotime( '-'.$recency, strtotime('now') );
+	$expiry = strtotime('now');
 	return ( $date < $expiry );
 }
 
@@ -235,14 +245,16 @@ function uri_tides_is_expired( $date ) {
 function _uri_tides_query( $url ) {
 
 	$args = array(
-		'user-agent' => 'URI Tides WordPress Plugin', // So api.uri.edu can easily figure out who we are
-		'headers' => [ ]
+		'user-agent' => 'URI Tides WordPress Plugin', // So the endpoint can figure out who we are
+		'headers' => [ ],
+		'timeout' => 5 // limit query time to 5 seconds
 	);
 	
 	
 	$response = wp_safe_remote_get ( $url, $args );
 	
 	if ( isset( $response['body'] ) && !empty( $response['body'] ) && wp_remote_retrieve_response_code($response) == '200' ) {
+		
 		// hooray, all is well!
 		return json_decode ( wp_remote_retrieve_body ( $response ) );
 
