@@ -295,6 +295,7 @@ function _uri_tides_query( $url ) {
 
 	if( is_wp_error ($response) ) {
 		// there was an error making the API call
+		// echo 'The error message is: ' . $response->get_error_message();
 		return FALSE;	
 	} 
 	
@@ -307,23 +308,12 @@ function _uri_tides_query( $url ) {
 
 	} else {
 
-		echo 'There was an error with the URI Tides Plugin';
-
-		// still here?  Then we have an error condition
-	
-		if ( is_wp_error ( $response ) ) {
-			$error_message = $response->get_error_message();
-			echo 'The error message is: ' . $error_message;
-			return FALSE;
-		}
+		// still here?  Then the content from API has been rejected
+		echo 'There was an error with the URI Tides Plugin. ';
+		// likely condition
 		if ( wp_remote_retrieve_response_code($response) != '200' ) {
 			echo 'The response code was not 200.';
-			echo $response;
-			return FALSE;
 		}
-
-		// still here?  the error condition is indeed unexpected
-		echo 'Empty response from server.';
 		return FALSE;
 	}
 }
