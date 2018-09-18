@@ -304,19 +304,14 @@ function _uri_tides_query( $url ) {
 	} 
 	
 	// still here?  good.  it means WP got an acceptable response.  Let's validate it.
-	
 	if ( isset( $response['body'] ) && !empty( $response['body'] ) && wp_remote_retrieve_response_code($response) == '200' ) {
-	
 		$data = json_decode ( wp_remote_retrieve_body ( $response ) );
-
 		// check that the response has a body and that it contains the properties that we're looking for
 		if( ( isset($data->metadata) || isset($data->predictions) ) ) {
 			// hooray, all is well!
 			return $data;
 		}
-		
-
-	} else {
+	}
 
 		// still here?  Then the content from API has been rejected
 		// @todo: log sensible debugging information
@@ -327,6 +322,6 @@ function _uri_tides_query( $url ) {
 // 			echo 'The response code was not 200.';
 // 		}
 		return FALSE;
-	}
+
 }
 
