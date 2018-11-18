@@ -159,7 +159,7 @@ function uri_tides_get_data() {
 			uri_tides_write_cache($tides_data, $expires_on);
 			
 			// notify the administrator of a problem
-			_uri_tides_notify_administrator( $tides_data );
+			// _uri_tides_notify_administrator( $tides_data );
 			
 		}
 		
@@ -176,6 +176,7 @@ function uri_tides_get_data() {
  * @return bool
  */
 function _uri_tides_notify_administrator( $tides_data ) {
+	// @todo: identify which site is sending the error
 	$to = get_option('admin_email');
 	if( empty ( $admin_email ) ) {
 		$to = 'jpennypacker@uri.edu';
@@ -315,12 +316,7 @@ function _uri_tides_query( $url ) {
 
 		// still here?  Then the content from API has been rejected
 		// @todo: log sensible debugging information
-		
-		// echo 'There was an error with the URI Tides Plugin. ';
-		// likely condition
-// 		if ( wp_remote_retrieve_response_code($response) != '200' ) {
-// 			echo 'The response code was not 200.';
-// 		}
+
 		return FALSE;
 
 }
