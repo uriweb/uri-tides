@@ -178,12 +178,12 @@ function uri_tides_get_data() {
 function _uri_tides_notify_administrator( $tides_data ) {
 	// @todo: identify which site is sending the error
 	$to = get_option('admin_email');
-	if( empty ( $admin_email ) ) {
+	if( empty ( $to ) ) {
 		$to = 'jpennypacker@uri.edu';
 	}
-	$tz = get_option('timezone_string');
-	$date = (new DateTime('@' . $tides_data['date']))->setTimezone(new DateTimeZone( $tz ));
-	$expiry = (new DateTime('@' . $tides_data['expires_on']))->setTimezone(new DateTimeZone( $tz ));
+	$timezone = get_option('timezone_string');
+	$date = (new DateTime('@' . $tides_data['date']))->setTimezone(new DateTimeZone( $timezone ));
+	$expiry = (new DateTime('@' . $tides_data['expires_on']))->setTimezone(new DateTimeZone( $timezone ));
 
 	$subject = 'URI Tides failed to update tide data';
 	$message = "The last time that tides data was refreshed successfully was on: " . $date->format( 'Y-m-d\TH:i:s' );
