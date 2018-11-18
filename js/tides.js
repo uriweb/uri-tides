@@ -178,6 +178,10 @@
         var x = (2 * Math.PI) / m.cycle * m.x;
         m.y = Math.sin(x) + 1;
         
+				// prepare the date of tide retrieval for display
+        var retrieved = new Date(tides.date * 1000);
+				var options = { year: 'numeric', month: 'short', day: 'numeric', hour: "2-digit", minute: "2-digit" };
+        
         var fillcolor = el.classList.contains('darkmode') ? '#fff' : '#555';
         
         // Put it all together, converting the x and y positions to proportions of the SVG dimensions
@@ -189,7 +193,7 @@
         output += '</svg>';
         output += '</div>';
         
-        output += '<div class="uri-tides-source">Source: <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=' + station + '" title="NOAA Center for Operational Oceanographic Producs and Services">NOAA/NOS/CO-OPS</a></div>';
+        output += '<div class="uri-tides-source">Source: <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=' + station + '" title="NOAA Center for Operational Oceanographic Producs and Services; tide data retrieved: ' + retrieved.toLocaleDateString("en-US", options) + '">NOAA/NOS/CO-OPS</a></div>';
         
         
         // Display
