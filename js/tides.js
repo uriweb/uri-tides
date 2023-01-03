@@ -98,8 +98,10 @@
             // Set the station id
             var station = els[i].getAttribute('data-station');
             
-            helpers.status(els[i], 'Initiating tide data...');
-            buildChart(els[i], curve, station, );
+            if ( null !== tides ) {
+                helpers.status(els[i], 'Initiating tide data...');
+                buildChart(els[i], curve, station, );
+            }
         };
             
     }

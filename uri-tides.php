@@ -21,7 +21,11 @@ if ( !defined('ABSPATH') )
 function uri_tides_scripts() {
 	wp_register_script( 'uri-tides', plugins_url( '/js/tides.js', __FILE__ ) );
 	wp_enqueue_script( 'uri-tides' );
-	$tides = uri_tides_get_data();
+
+	if ( function_exists( 'uri_tides_updater_get_data' ) ) {
+		$tides = uri_tides_updater_get_data();
+	}
+	
 	wp_localize_script( 'uri-tides', 'tides', $tides);
 }
 
