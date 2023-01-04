@@ -16,35 +16,25 @@ if ( !defined('ABSPATH') )
 
 
 /**
- * Loads up the javascript
+ * Loads up the javascript and styles
  */
-function uri_tides_scripts() {
+function uri_tides_enqueues() {
 	wp_register_script( 'uri-tides', plugins_url( '/js/tides.js', __FILE__ ) );
 	wp_enqueue_script( 'uri-tides' );
 
 	$tides = get_site_option( 'uri_tides_updater_cache', FALSE );
-
 	wp_localize_script( 'uri-tides', 'tides', $tides);
-}
 
-
-/**
- * Loads up the css
- */
-function uri_tides_styles() {
 	wp_register_style( 'uri-tides-css', plugins_url( '/css/tides.css', __FILE__ ) );    
 	wp_enqueue_style( 'uri-tides-css' );
 }
+add_action( 'wp_enqueue_scripts', 'uri_tides_enqueues' );
 
 
 /**
  * Shortcode callback
  */
 function uri_tides_shortcode($attributes, $content, $shortcode) {
-   
-	uri_tides_scripts();
-	uri_tides_styles();
-
 
 	// Attributes
 	extract( shortcode_atts(
