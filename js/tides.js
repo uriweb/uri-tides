@@ -180,9 +180,9 @@
         var x = (2 * Math.PI) / m.cycle * m.x;
         m.y = Math.sin(x) + 1;
         
-				// prepare the date of tide retrieval for display
+		// prepare the date of tide retrieval for display
         var retrieved = new Date(tides.date * 1000);
-				var options = { year: 'numeric', month: 'short', day: 'numeric', hour: "2-digit", minute: "2-digit" };
+		var options = { year: 'numeric', month: 'short', day: 'numeric', hour: "2-digit", minute: "2-digit" };
         
         var fillcolor = el.classList.contains('darkmode') ? '#fff' : '#555';
         
