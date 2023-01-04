@@ -95,12 +95,9 @@
                 'padding' : h * (1/6)
             };
             
-            // Set the station id
-            var station = els[i].getAttribute('data-station');
-            
             if ( tides ) {
                 helpers.status(els[i], 'Initiating tide data...');
-                buildChart(els[i], curve, station, );
+                buildChart(els[i], curve );
             }
         };
             
@@ -111,7 +108,7 @@
      * @param el el the tide widget element
      * @param curve obj the curve dimensions
      */
-		function buildChart(el, curve, station) {
+		function buildChart(el, curve) {
 
 			var tideHeight,
 					output,
@@ -195,7 +192,7 @@
         output += '</svg>';
         output += '</div>';
         
-        output += '<div class="uri-tides-source">Source: <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=' + station + '" title="NOAA Center for Operational Oceanographic Producs and Services; tide data retrieved: ' + retrieved.toLocaleDateString("en-US", options) + '">NOAA/NOS/CO-OPS</a></div>';
+        output += '<div class="uri-tides-source">Source: <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8454049" title="NOAA Center for Operational Oceanographic Producs and Services; tide data retrieved: ' + retrieved.toLocaleDateString("en-US", options) + '">NOAA/NOS/CO-OPS</a></div>';
         
         
         // Display
