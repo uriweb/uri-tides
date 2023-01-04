@@ -1,8 +1,6 @@
 # URI Tides Widget
 
-Add the `[uri-tides]` shortcode to a page and a tides widget appears.
-
-The widget pulls in live water temp and tide prediction data from NOAA and graphically displays the current position of the tide.  Data is pulled from the station at Quonset Point, RI.
+Add the `[uri-tides]` shortcode to a page and a tides widget appears.  Requires the [URI Tides Updater](https://github.com/uriweb/uri-tides-updater) plugin to be installed and activated on at least one site.
 
 ## Attributes
 
