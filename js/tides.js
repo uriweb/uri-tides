@@ -2,15 +2,6 @@
     
     'use strict';
     
-    /*
-     * See CO-OPS JSON API documentation at https://tidesandcurrents.noaa.gov/api/
-     */
-    var parameters = {
-        'timezone' : 'GMT',
-        'baseURL' : 'https://tidesandcurrents.noaa.gov/api/datagetter?'
-    };
-    
-    
     // Wait for the window to load...
     window.addEventListener('load', function(){
         uriTidesInit();
@@ -95,12 +86,11 @@
                 'padding' : h * (1/6)
             };
             
-            // Set the station id
-            var station = els[i].getAttribute('data-station');
-            
-            helpers.status(els[i], 'Initiating tide data...');
-            buildChart(els[i], curve, station, );
-        };
+            if ( tides ) {
+                helpers.status(els[i], 'Initiating tide data...');
+                buildChart(els[i], curve );
+            }
+        }
             
     }
 
@@ -109,10 +99,9 @@
      * @param el el the tide widget element
      * @param curve obj the curve dimensions
      */
-		function buildChart(el, curve, station) {
+		function buildChart(el, curve) {
 
-			var tideHeight,
-					output,
+			var     output,
 					tide = tides.tide.predictions,
 					temp = tides.temperature.data,
 					display = {
@@ -178,9 +167,9 @@
         var x = (2 * Math.PI) / m.cycle * m.x;
         m.y = Math.sin(x) + 1;
         
-				// prepare the date of tide retrieval for display
+		// prepare the date of tide retrieval for display
         var retrieved = new Date(tides.date * 1000);
-				var options = { year: 'numeric', month: 'short', day: 'numeric', hour: "2-digit", minute: "2-digit" };
+		var options = { year: 'numeric', month: 'short', day: 'numeric', hour: "2-digit", minute: "2-digit" };
         
         var fillcolor = el.classList.contains('darkmode') ? '#fff' : '#555';
         
@@ -193,7 +182,7 @@
         output += '</svg>';
         output += '</div>';
         
-        output += '<div class="uri-tides-source">Source: <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=' + station + '" title="NOAA Center for Operational Oceanographic Producs and Services; tide data retrieved: ' + retrieved.toLocaleDateString("en-US", options) + '">NOAA/NOS/CO-OPS</a></div>';
+        output += '<div class="uri-tides-source">Source: <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8454049" title="NOAA Center for Operational Oceanographic Producs and Services; tide data retrieved: ' + retrieved.toLocaleDateString("en-US", options) + '">NOAA/NOS/CO-OPS</a></div>';
         
         
         // Display
