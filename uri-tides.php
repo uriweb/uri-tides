@@ -61,20 +61,3 @@ function uri_tides_shortcode($attributes, $content, $shortcode) {
 
 }
 add_shortcode( 'uri-tides', 'uri_tides_shortcode' );
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

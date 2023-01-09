@@ -2,15 +2,6 @@
     
     'use strict';
     
-    /*
-     * See CO-OPS JSON API documentation at https://tidesandcurrents.noaa.gov/api/
-     */
-    var parameters = {
-        'timezone' : 'GMT',
-        'baseURL' : 'https://tidesandcurrents.noaa.gov/api/datagetter?'
-    };
-    
-    
     // Wait for the window to load...
     window.addEventListener('load', function(){
         uriTidesInit();
@@ -99,7 +90,7 @@
                 helpers.status(els[i], 'Initiating tide data...');
                 buildChart(els[i], curve );
             }
-        };
+        }
             
     }
 
@@ -110,8 +101,7 @@
      */
 		function buildChart(el, curve) {
 
-			var tideHeight,
-					output,
+			var     output,
 					tide = tides.tide.predictions,
 					temp = tides.temperature.data,
 					display = {
