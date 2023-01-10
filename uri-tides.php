@@ -8,6 +8,7 @@ Author: URI Web Communications
 Author URI: 
 @author: Brandon Fuller <bjcfuller@uri.edu>
 @author: John Pennypacker <jpennypacker@uri.edu>
+@author: Alexandra Gauss <alexandra_gauss@uri.edu>
 */
 
 // Block direct requests
