@@ -27,4 +27,4 @@ Contributors: Brandon Fuller, John Pennypacker
 Tags: widgets  
 Requires at least: 4.0  
 Tested up to: 6.0  
-Stable tag: 2.0.1  
+Stable tag: 2.1.0  
