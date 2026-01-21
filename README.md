@@ -26,5 +26,5 @@ Set custom CSS class(s) (default: none)
 Contributors: Brandon Fuller, John Pennypacker  
 Tags: widgets  
 Requires at least: 4.0  
-Tested up to: 6.0  
-Stable tag: 2.1.0  
+Tested up to: 6.8.3 
+Stable tag: 2.1.1  
