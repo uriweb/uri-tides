@@ -177,7 +177,7 @@
         output += '<div class="uri-tides-tide">';
         output += '<span class="label">TIDE</span>';
         output += '<div class="screenreader">' + m.status + '</div>';
-        output += '<svg height="' + (curve.height + curve.padding * 2) + 'px" width="' + (curve.width + curve.padding * 2) + 'px" class="uri-tides-graphic">';
+        output += '<svg role="img" aria-label="Tide graphic" height="' + (curve.height + curve.padding * 2) + 'px" width="' + (curve.width + curve.padding * 2) + 'px" class="uri-tides-graphic">';
         output += '<circle cx="' + (curve.width / m.cycle * m.x + curve.padding) + '" cy="' + (curve.height - curve.height / 2 * m.y + curve.padding) + '" r="' + curve.padding + '" stroke="black" stroke-width="0" fill="' + fillcolor + '" />';
         output += '</svg>';
         output += '</div>';
